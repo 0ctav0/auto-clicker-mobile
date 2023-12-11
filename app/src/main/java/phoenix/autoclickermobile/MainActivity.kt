@@ -1,8 +1,10 @@
 package phoenix.autoclickermobile
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
@@ -12,16 +14,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.startBtn).setOnClickListener {
-            val svc = Intent(this, Overlay::class.java)
-            startService(svc)
-            finish()
+        var canDraw = true
 
+        var intent: Intent? = null
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            canDraw = Settings.canDrawOverlays(this)
+            if (!canDraw && intent != null) {
+                startActivity(intent)
+            }
+        }
+
+        findViewById<Button>(R.id.startBtn).setOnClickListener {
+            val service = Intent(this, Overlay::class.java)
+            startService(service)
         }
     }
 
-    fun onClickStartBtn() {
-//        Log.i(MainActivity::class.simpleName, "Hey")
-//        Toast.makeText(this, "Clicked on btn", Toast.LENGTH_LONG).show()
-    }
 }
